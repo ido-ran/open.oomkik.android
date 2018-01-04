@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
                 runOnUiThread {
                     progressDialog.dismiss()
-                    startActivityFromClass(DetailsActivity::class.java)
+                    startActivityFromClass(FullscreenActivity::class.java)
                 }
             }).start()
 
