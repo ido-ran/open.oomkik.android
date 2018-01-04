@@ -7,7 +7,6 @@ apply plugin: 'com.github.ben-manes.versions'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
 
     defaultConfig {
         applicationId "org.ligi.ipfsdroid"
@@ -24,10 +23,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-
-    dexOptions {
-        incremental true
     }
 
     lintOptions {
