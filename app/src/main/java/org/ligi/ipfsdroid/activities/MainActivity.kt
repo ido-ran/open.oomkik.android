@@ -35,30 +35,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         daemonButton.setOnClickListener({
-            startService(Intent(this, IPFSDaemonService::class.java))
-
-            daemonButton.visibility = View.GONE
-            State.isDaemonRunning = true
-
-            val progressDialog = ProgressDialog(this)
-            progressDialog.setMessage("starting daemon")
-            progressDialog.show()
-
-
-            Thread(Runnable {
-                var version: VersionInfo? = null
-                while (version == null) {
-                    try {
-                        version = ipfs.info.version()
-                    } catch (ignored: Exception) {
-                    }
-                }
-
-                runOnUiThread {
-                    progressDialog.dismiss()
-                    startActivityFromClass(FullscreenActivity::class.java)
-                }
-            }).start()
+            startDaemon()
 
             refresh()
         })
@@ -79,6 +56,37 @@ class MainActivity : AppCompatActivity() {
         TraceDroidEmailSender.sendStackTraces("ligi@ligi.de", this)
 
         refresh()
+
+        if (ipfsDaemon.isReady() && !State.isDaemonRunning) {
+            startDaemon()
+        }
+    }
+
+    private fun startDaemon() {
+        startService(Intent(this, IPFSDaemonService::class.java))
+
+        daemonButton.visibility = View.GONE
+        State.isDaemonRunning = true
+
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("starting daemon")
+        progressDialog.show()
+
+
+        Thread(Runnable {
+            var version: VersionInfo? = null
+            while (version == null) {
+                try {
+                    version = ipfs.info.version()
+                } catch (ignored: Exception) {
+                }
+            }
+
+            runOnUiThread {
+                progressDialog.dismiss()
+                startActivityFromClass(FullscreenActivity::class.java)
+            }
+        }).start()
     }
 
     override fun onResume() {

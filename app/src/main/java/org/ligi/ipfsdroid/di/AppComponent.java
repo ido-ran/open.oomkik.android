@@ -3,6 +3,7 @@ package org.ligi.ipfsdroid.di;
 import dagger.Component;
 import javax.inject.Singleton;
 import org.ligi.ipfsdroid.activities.DetailsActivity;
+import org.ligi.ipfsdroid.activities.FullscreenActivity;
 import org.ligi.ipfsdroid.activities.HashTextAndBarcodeActivity;
 import org.ligi.ipfsdroid.activities.MainActivity;
 
@@ -15,4 +16,5 @@ public interface AppComponent {
 
     void inject(DetailsActivity detailsActivity);
 
+    void inject(FullscreenActivity fullscreenActivity);
 }

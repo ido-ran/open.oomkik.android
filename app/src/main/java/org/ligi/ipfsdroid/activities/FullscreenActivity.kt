@@ -4,14 +4,24 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
+import io.ipfs.kotlin.IPFS
 import org.ligi.ipfsdroid.R
 import kotlinx.android.synthetic.main.activity_fullscreen.*
+import org.ligi.ipfsdroid.App
+import org.ligi.ipfsdroid.PhotoDownloader
+import org.ligi.ipfsdroid.PubSubFirebaseImpl
+import org.ligi.tracedroid.logging.Log
+import javax.inject.Inject
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 class FullscreenActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var ipfs: IPFS
+
     private val mHideHandler = Handler()
     private val mHidePart2Runnable = Runnable {
         // Delayed removal of status and navigation bar
@@ -46,8 +56,18 @@ class FullscreenActivity : AppCompatActivity() {
         false
     }
 
+    private val photoDownloader = PhotoDownloader(this)
+
+    private val pubsub = PubSubFirebaseImpl({photoHash ->
+        photoDownloader.download(ipfs, photoHash, { content ->
+            Log.d(content)
+        })
+    })
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        App.component().inject(this)
 
         setContentView(R.layout.activity_fullscreen)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
