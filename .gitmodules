@@ -1,0 +1,3 @@
+[submodule "ipfs-api-kotlin"]
+	path = ipfs-api-kotlin
+	url = git@github.com:ido-ran/ipfs-api-kotlin.git

@@ -60,7 +60,7 @@ class FullscreenActivity : AppCompatActivity() {
 
     private val pubsub = PubSubFirebaseImpl({photoHash ->
         photoDownloader.download(ipfs, photoHash, { content ->
-            Log.d(content)
+            Log.d(content.toString())
         })
     })
 
