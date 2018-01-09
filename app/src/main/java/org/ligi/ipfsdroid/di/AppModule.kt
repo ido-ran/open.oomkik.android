@@ -15,8 +15,8 @@ class AppModule(private val app: App) {
     @Provides
     internal fun proviceOkhttp(): OkHttpClient {
         val builder = OkHttpClient.Builder()
-        builder.connectTimeout(1000, TimeUnit.SECONDS)
-        builder.readTimeout(1000, TimeUnit.SECONDS)
+        builder.connectTimeout(10, TimeUnit.SECONDS)
+        builder.readTimeout(200, TimeUnit.SECONDS)
         return builder.build()
     }
 
