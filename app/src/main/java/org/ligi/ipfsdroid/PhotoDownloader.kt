@@ -15,7 +15,7 @@ class PhotoDownloader(private val context: Context) {
 
                     val tempFile = File.createTempFile("temp_photo_" + photoHash, "jpg", context.cacheDir)
 
-                    ipfs.get.catStream("QmZ98g31Wm3ypmPu14rj52Zz3jF457neEwZPKWdrtUWbLA", { photoContentStream ->
+                    ipfs.get.catStream(photoHash, { photoContentStream ->
                         tempFile.outputStream().use { outputStream ->
                             photoContentStream.copyTo(outputStream)
                         }

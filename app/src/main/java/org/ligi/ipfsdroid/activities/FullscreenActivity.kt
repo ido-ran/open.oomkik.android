@@ -1,16 +1,19 @@
 package org.ligi.ipfsdroid.activities
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.bumptech.glide.Glide
 import io.ipfs.kotlin.IPFS
-import org.ligi.ipfsdroid.R
 import kotlinx.android.synthetic.main.activity_fullscreen.*
 import org.ligi.ipfsdroid.App
 import org.ligi.ipfsdroid.PhotoDownloader
 import org.ligi.ipfsdroid.PubSubFirebaseImpl
+import org.ligi.ipfsdroid.R
 import org.ligi.tracedroid.logging.Log
+import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -22,6 +25,30 @@ class FullscreenActivity : AppCompatActivity() {
     @Inject
     lateinit var ipfs: IPFS
 
+    private val mPhotoUrls = ArrayList<String>()
+    private val mHandler = Handler()
+    private var mPhotoIndex = -1
+
+    private val mShowNextPhoto = object : Runnable {
+        override fun run() {
+            mPhotoIndex++
+
+            if (mPhotoUrls.size > 0) {
+
+                if (mPhotoIndex + 1 > mPhotoUrls.size) {
+                    mPhotoIndex = 0
+                }
+
+                Glide.with(this@FullscreenActivity)
+                        .load(mPhotoUrls[mPhotoIndex])
+//                    .fitCenter()
+                        .into(image_view)
+            }
+
+            mHandler.postDelayed(this, 5000)
+        }
+    }
+
     private val mHideHandler = Handler()
     private val mHidePart2Runnable = Runnable {
         // Delayed removal of status and navigation bar
@@ -29,7 +56,7 @@ class FullscreenActivity : AppCompatActivity() {
         // Note that some of these constants are new as of API 16 (Jelly Bean)
         // and API 19 (KitKat). It is safe to use them, as they are inlined
         // at compile-time and do nothing on earlier devices.
-        fullscreen_content.systemUiVisibility =
+        image_view.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LOW_PROFILE or
                         View.SYSTEM_UI_FLAG_FULLSCREEN or
                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
@@ -61,6 +88,7 @@ class FullscreenActivity : AppCompatActivity() {
     private val pubsub = PubSubFirebaseImpl({photoHash ->
         photoDownloader.download(ipfs, photoHash, { content ->
             Log.d(content.toString())
+            loadPhotoList()
         })
     })
 
@@ -75,12 +103,26 @@ class FullscreenActivity : AppCompatActivity() {
         mVisible = true
 
         // Set up the user interaction to manually show or hide the system UI.
-        fullscreen_content.setOnClickListener { toggle() }
+        image_view.setOnClickListener { toggle() }
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         dummy_button.setOnTouchListener(mDelayHideTouchListener)
+
+        loadPhotoList()
+    }
+
+    private fun loadPhotoList() {
+        val photosDir = File(filesDir, "photos")
+        if (photosDir.exists()) {
+            mPhotoUrls.clear()
+            photosDir.listFiles { dir, name ->
+                mPhotoUrls.add("$dir/$name")
+            }
+        }
+
+        startShowPhotos()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -90,6 +132,12 @@ class FullscreenActivity : AppCompatActivity() {
         // created, to briefly hint to the user that UI controls
         // are available.
         delayedHide(100)
+    }
+
+    private fun startShowPhotos() {
+        if (mPhotoIndex == -1) {
+            mShowNextPhoto.run()
+        }
     }
 
     private fun toggle() {
@@ -113,7 +161,7 @@ class FullscreenActivity : AppCompatActivity() {
 
     private fun show() {
         // Show the system bar
-        fullscreen_content.systemUiVisibility =
+        image_view.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                         View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         mVisible = true
