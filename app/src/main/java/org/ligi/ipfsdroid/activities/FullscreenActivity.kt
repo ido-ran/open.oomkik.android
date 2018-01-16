@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.Toast
+import com.birbit.android.jobqueue.JobManager
+import com.birbit.android.jobqueue.config.Configuration
 import com.bumptech.glide.Glide
 import io.ipfs.kotlin.IPFS
 import kotlinx.android.synthetic.main.activity_fullscreen.*
-import org.ligi.ipfsdroid.App
-import org.ligi.ipfsdroid.PhotoDownloader
-import org.ligi.ipfsdroid.PubSubFirebaseImpl
-import org.ligi.ipfsdroid.R
+import org.ligi.ipfsdroid.*
 import org.ligi.tracedroid.logging.Log
 import java.io.File
 import java.util.*
@@ -24,6 +24,8 @@ class FullscreenActivity : AppCompatActivity() {
 
     @Inject
     lateinit var ipfs: IPFS
+
+    private var jobManager: JobManager? = null
 
     private val mPhotoUrls = ArrayList<String>()
     private val mHandler = Handler()
@@ -86,16 +88,18 @@ class FullscreenActivity : AppCompatActivity() {
     private val photoDownloader = PhotoDownloader(this)
 
     private val pubsub = PubSubFirebaseImpl({photoHash ->
-        photoDownloader.download(ipfs, photoHash, { content ->
+        jobManager!!.addJobInBackground(DownloadPhotoJob(this, ipfs, photoHash, mHandler, { content ->
             Log.d(content.toString())
             loadPhotoList()
-        })
+        }))
     })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         App.component().inject(this)
+
+        jobManager = JobManager(Configuration.Builder(this).build())
 
         setContentView(R.layout.activity_fullscreen)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
