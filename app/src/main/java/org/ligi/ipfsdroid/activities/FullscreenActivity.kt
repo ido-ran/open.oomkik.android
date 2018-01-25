@@ -1,5 +1,6 @@
 package org.ligi.ipfsdroid.activities
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
@@ -89,12 +90,7 @@ class FullscreenActivity : AppCompatActivity() {
 
     private val photoDownloader = PhotoDownloader(this)
 
-    private val pubsub = PubSubFirebaseImpl({photoHash ->
-        jobManager!!.addJobInBackground(DownloadPhotoJob(this, ipfs, photoHash, mHandler, { content ->
-            Log.d(content.toString())
-            loadPhotoList()
-        }))
-    })
+    private lateinit var pubsub: PubSubFirebaseImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,6 +113,15 @@ class FullscreenActivity : AppCompatActivity() {
         dummy_button.setOnTouchListener(mDelayHideTouchListener)
 
         loadPhotoList()
+
+        pubsub = PubSubFirebaseImpl(
+                getSharedPreferences("PubSubFirebase", Context.MODE_PRIVATE),
+                { photoHash ->
+                    jobManager!!.addJobInBackground(DownloadPhotoJob(this, ipfs, photoHash, mHandler, { content ->
+                        Log.d(content.toString())
+                        loadPhotoList()
+                    }))
+                })
     }
 
     private fun loadPhotoList() {
