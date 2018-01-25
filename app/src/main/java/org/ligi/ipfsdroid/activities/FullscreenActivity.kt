@@ -31,6 +31,8 @@ class FullscreenActivity : AppCompatActivity() {
     private val mHandler = Handler()
     private var mPhotoIndex = -1
 
+    private val delayBetweenPhotosInMs: Long = 2000;
+
     private val mShowNextPhoto = object : Runnable {
         override fun run() {
             mPhotoIndex++
@@ -47,7 +49,7 @@ class FullscreenActivity : AppCompatActivity() {
                         .into(image_view)
             }
 
-            mHandler.postDelayed(this, 5000)
+            mHandler.postDelayed(this, delayBetweenPhotosInMs)
         }
     }
 
