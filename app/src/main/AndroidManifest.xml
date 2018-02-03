@@ -16,6 +16,9 @@
             android:name=".IPFSDaemonService"
             android:exported="false" />
 
+        <service android:name=".IPFSDaemonPublishWebappService"
+            android:exported="false" />
+
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,6 +1,7 @@
 package org.ligi.ipfsdroid.activities
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
@@ -96,6 +97,8 @@ class FullscreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         App.component().inject(this)
+
+        startService(Intent(this, IPFSDaemonPublishWebappService::class.java))
 
         jobManager = JobManager(Configuration.Builder(this).build())
 
